@@ -1,0 +1,48 @@
+name: ALFA Portföy Günlük Analiz
+
+on:
+  schedule:
+    - cron: '30 15 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  analiz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Repo'yu indir
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Bağımlılıkları yükle
+        run: pip install -r requirements.txt
+
+      - name: 📂 Önceki portföyü geri yükle
+        uses: actions/cache@v4
+        with:
+          path: onceki_portfoy.json
+          key: portfoy-${{ github.run_id }}
+          restore-keys: portfoy-
+
+      - name: 🚀 ALFA Analizi Çalıştır
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python alfa_analyzer.py
+
+      - name: 💾 Portföyü kaydet
+        uses: actions/cache@v4
+        with:
+          path: onceki_portfoy.json
+          key: portfoy-${{ github.run_id }}
+
+      - name: 📤 Commit
+        run: |
+          git config user.email "alfa-bot@github.com"
+          git config user.name "ALFA Bot"
+          git add onceki_portfoy.json || true
+          git diff --staged --quiet || git commit -m "📊 $(date '+%d.%m.%Y') güncellendi"
+          git push || true
