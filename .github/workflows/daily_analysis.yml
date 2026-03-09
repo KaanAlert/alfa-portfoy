@@ -2,7 +2,7 @@ name: ALFA Portföy Günlük Analiz
 
 on:
   schedule:
-    - cron: '45 15 * * 1-5'
+    - cron: '42 01 * * 1-5'
   workflow_dispatch:
 
 jobs:
