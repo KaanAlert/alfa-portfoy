@@ -31,7 +31,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python alfa_analyzer_v3.py
+        run: python alfa_analyzer_v4.py
 
       - name: 💾 Portföyü kaydet
         uses: actions/cache@v4
