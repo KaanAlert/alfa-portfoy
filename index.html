@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0f">
+<title>ALFA Portföy</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.06);
+    --accent: #00ff88;
+    --accent2: #0066ff;
+    --warn: #ffaa00;
+    --red: #ff4455;
+    --text: #e8e8f0;
+    --muted: #6666aa;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .status-text {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 10;
+  }
+
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 14px 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+  }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* PORTFOLIO HEADER */
+  .portfolio-header {
+    margin-bottom: 24px;
+  }
+
+  .portfolio-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .portfolio-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  .portfolio-title span { color: var(--accent); }
+
+  .portfolio-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+  }
+
+  .meta-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+
+  /* STOCK CARD */
+  .stock-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stock-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .stock-card.rank-1::before { background: #ffd700; }
+  .stock-card.rank-2::before { background: #c0c0c0; }
+  .stock-card.rank-3::before { background: #cd7f32; }
+
+  .stock-card:active { transform: scale(0.98); }
+
+  .stock-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .stock-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .rank-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .rank-1 .rank-badge { background: rgba(255,215,0,0.15); color: #ffd700; }
+  .rank-2 .rank-badge { background: rgba(192,192,192,0.15); color: #c0c0c0; }
+  .rank-3 .rank-badge { background: rgba(205,127,50,0.15); color: #cd7f32; }
+
+  .stock-info { flex: 1; }
+
+  .stock-ticker {
+    font-size: 17px;
+    font-weight: 800;
+    font-family: var(--mono);
+    letter-spacing: -0.5px;
+  }
+
+  .stock-sector {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .new-badge {
+    background: rgba(0,255,136,0.15);
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 48px;
+    height: 48px;
+  }
+
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-ring-bg {
+    fill: none;
+    stroke: var(--surface2);
+    stroke-width: 3;
+  }
+
+  .score-ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease;
+  }
+
+  .score-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .stock-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .metric {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 8px 10px;
+  }
+
+  .metric-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+    margin-bottom: 3px;
+  }
+
+  .metric-value {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .metric-value.good { color: var(--accent); }
+  .metric-value.warn { color: var(--warn); }
+  .metric-value.neutral { color: var(--text); }
+
+  /* SCAN BUTTON */
+  .scan-section {
+    margin-bottom: 24px;
+  }
+
+  .scan-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: var(--sans);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .scan-btn:active { transform: scale(0.97); }
+  .scan-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .scan-btn.loading {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* HISTORY */
+  .history-month {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .history-month-header {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .history-date {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .history-count {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .history-chevron {
+    color: var(--muted);
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+
+  .history-month.open .history-chevron { transform: rotate(180deg); }
+
+  .history-stocks {
+    display: none;
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .history-month.open .history-stocks { display: block; }
+
+  .history-stock-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-stock-row:last-child { border-bottom: none; }
+
+  .history-ticker {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+
+  .history-sector {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .history-metrics {
+    display: flex;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* SETTINGS */
+  .settings-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .settings-title {
+    padding: 14px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+
+  .settings-row {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .settings-row:last-child { border-bottom: none; }
+
+  .settings-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .settings-sublabel {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  .toggle {
+    width: 44px;
+    height: 26px;
+    background: var(--surface2);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+  }
+
+  .toggle.on { background: var(--accent); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .toggle.on::after { transform: translateX(18px); }
+
+  .settings-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    width: 140px;
+    text-align: right;
+  }
+
+  .settings-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* NOTIFICATION */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-family: var(--mono);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-item {
+    flex: 1;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-icon { font-size: 20px; }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .empty-text { font-size: 13px; line-height: 1.5; }
+
+  /* CONFIG MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    width: 100%;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .modal-input-group { margin-bottom: 16px; }
+
+  .modal-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .modal-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .modal-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .modal-btn-secondary {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  /* ANIMATE IN */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stock-card { animation: fadeUp 0.4s ease both; }
+  .stock-card:nth-child(1) { animation-delay: 0.05s; }
+  .stock-card:nth-child(2) { animation-delay: 0.1s; }
+  .stock-card:nth-child(3) { animation-delay: 0.15s; }
+  .stock-card:nth-child(4) { animation-delay: 0.2s; }
+  .stock-card:nth-child(5) { animation-delay: 0.25s; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">ALFA <span>Portföy</span></div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <div class="status-text" id="lastUpdate">yükleniyor...</div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="tab active" onclick="switchTab('portfolio')">Portföy</div>
+  <div class="tab" onclick="switchTab('scan')">Tarama</div>
+  <div class="tab" onclick="switchTab('history')">Geçmiş</div>
+  <div class="tab" onclick="switchTab('settings')">Ayarlar</div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- PORTFOLIO TAB -->
+  <div class="section active" id="tab-portfolio">
+    <div class="portfolio-header">
+      <div class="portfolio-date" id="portfolioDate">— / — / ——</div>
+      <div class="portfolio-title">Güncel <span>Portföy</span></div>
+      <div class="portfolio-meta">
+        <div class="meta-item">
+          <div class="meta-label">Hisse</div>
+          <div class="meta-value" id="stockCount">—</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Tarama</div>
+          <div class="meta-value" id="scanCount">—</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Sonraki</div>
+          <div class="meta-value" id="nextScan">18:45</div>
+        </div>
+      </div>
+    </div>
+    <div id="stockList">
+      <div class="empty-state">
+        <div class="empty-icon">📡</div>
+        <div class="empty-title">Veri Yükleniyor</div>
+        <div class="empty-text">GitHub repo bağlantısını ayarlardan yapılandırın</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN TAB -->
+  <div class="section" id="tab-scan">
+    <div class="scan-section">
+      <div class="portfolio-title" style="margin-bottom:8px">Manuel <span>Tarama</span></div>
+      <div class="portfolio-date" style="margin-bottom:20px">Anlık BIST taraması başlat</div>
+
+      <button class="scan-btn" id="scanBtn" onclick="startScan()">
+        <span>🚀</span>
+        <span>Taramayı Başlat</span>
+      </button>
+    </div>
+
+    <div id="scanStatus"></div>
+
+    <div class="settings-section" style="margin-top:24px">
+      <div class="settings-title">Tarama Bilgisi</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Veri Kaynağı</div>
+          <div class="settings-sublabel">Yahoo Finance</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Tarama Sıklığı</div>
+          <div class="settings-sublabel">Her gün 18:45 TR</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Algoritma</div>
+          <div class="settings-sublabel">PDDD + FK + FNA + ÖZS Skoru</div>
+        </div>
+      </div>
+      <div class="settings-row" style="border:none">
+        <div>
+          <div class="settings-label">Hisse Sayısı</div>
+          <div class="settings-sublabel">~595 BIST hissesi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="section" id="tab-history">
+    <div class="portfolio-title" style="margin-bottom:4px">Geçmiş <span>Portföyler</span></div>
+    <div class="portfolio-date" style="margin-bottom:20px">19 aylık portföy verisi</div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="section" id="tab-settings">
+    <div class="portfolio-title" style="margin-bottom:4px">Ayarlar</div>
+    <div class="portfolio-date" style="margin-bottom:20px">Sistem yapılandırması</div>
+
+    <div class="settings-section">
+      <div class="settings-title">GitHub Bağlantısı</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Kullanıcı Adı</div>
+          <div class="settings-sublabel" id="displayOwner">Ayarlanmadı</div>
+        </div>
+        <button class="scan-btn" style="width:auto;padding:8px 14px;font-size:12px" onclick="showConfigModal()">Düzenle</button>
+      </div>
+      <div class="settings-row" style="border:none">
+        <div>
+          <div class="settings-label">Repo Adı</div>
+          <div class="settings-sublabel" id="displayRepo">Ayarlanmadı</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">Bildirimler</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Tarama Tamamlandı</div>
+          <div class="settings-sublabel">Telegram üzerinden</div>
+        </div>
+        <button class="toggle on" id="toggle1" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="settings-row" style="border:none">
+        <div>
+          <div class="settings-label">Portföy Değişimi</div>
+          <div class="settings-sublabel">Hisse girip/çıktığında</div>
+        </div>
+        <button class="toggle on" id="toggle2" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">Uygulama Hakkında</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Versiyon</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">v4.0</div>
+      </div>
+      <div class="settings-row" style="border:none">
+        <div>
+          <div class="settings-label">Algoritma</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">ALFA Skor</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">GitHub Bağlantısı</div>
+    <div class="modal-input-group">
+      <div class="modal-label">GitHub Kullanıcı Adı</div>
+      <input class="modal-input" id="ownerInput" placeholder="KaanAlert" type="text">
+    </div>
+    <div class="modal-input-group">
+      <div class="modal-label">Repo Adı</div>
+      <input class="modal-input" id="repoInput" placeholder="alfa-portfoy" type="text">
+    </div>
+    <div class="modal-input-group">
+      <div class="modal-label">GitHub Token (Actions için)</div>
+      <input class="modal-input" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" type="password">
+    </div>
+    <button class="modal-btn" onclick="saveConfig()">Kaydet</button>
+    <button class="modal-btn-secondary" onclick="hideConfigModal()">İptal</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────
+let config = JSON.parse(localStorage.getItem('alfaConfig') || '{}');
+
+function saveConfig() {
+  config = {
+    owner: document.getElementById('ownerInput').value.trim(),
+    repo: document.getElementById('repoInput').value.trim(),
+    token: document.getElementById('tokenInput').value.trim(),
+  };
+  localStorage.setItem('alfaConfig', JSON.stringify(config));
+  hideConfigModal();
+  updateDisplayConfig();
+  loadPortfolio();
+  showToast('✅ Kaydedildi');
+}
+
+function updateDisplayConfig() {
+  document.getElementById('displayOwner').textContent = config.owner || 'Ayarlanmadı';
+  document.getElementById('displayRepo').textContent = config.repo || 'Ayarlanmadı';
+}
+
+// ── MODAL ──────────────────────────────
+function showConfigModal() {
+  document.getElementById('ownerInput').value = config.owner || '';
+  document.getElementById('repoInput').value = config.repo || '';
+  document.getElementById('tokenInput').value = config.token || '';
+  document.getElementById('configModal').classList.add('show');
+}
+
+function hideConfigModal() {
+  document.getElementById('configModal').classList.remove('show');
+}
+
+document.getElementById('configModal').addEventListener('click', function(e) {
+  if (e.target === this) hideConfigModal();
+});
+
+// ── TABS ───────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── TOAST ──────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── SCORE RING ─────────────────────────
+function scoreRing(score) {
+  const r = 20;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (score / 100) * circ;
+  const color = score >= 70 ? '#00ff88' : score >= 45 ? '#ffaa00' : '#ff4455';
+  return `
+    <div class="score-ring">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle class="score-ring-bg" cx="24" cy="24" r="${r}"/>
+        <circle class="score-ring-fill" cx="24" cy="24" r="${r}"
+          stroke="${color}"
+          stroke-dasharray="${circ}"
+          stroke-dashoffset="${offset}"/>
+      </svg>
+      <div class="score-number" style="color:${color}">${score}</div>
+    </div>`;
+}
+
+// ── METRIC COLOR ───────────────────────
+function metricClass(key, val) {
+  if (!val) return 'neutral';
+  if (key === 'pddd') return val <= 1.5 ? 'good' : val <= 3 ? 'warn' : 'neutral';
+  if (key === 'fk')   return val <= 5 ? 'good' : val <= 15 ? 'warn' : 'neutral';
+  if (key === 'ozs')  return val >= 30 ? 'good' : val >= 15 ? 'warn' : 'neutral';
+  return 'neutral';
+}
+
+// ── RENDER STOCKS ──────────────────────
+function renderStocks(stocks) {
+  if (!stocks || stocks.length === 0) {
+    return `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">Portföy Boş</div>
+      <div class="empty-text">Henüz tarama yapılmamış veya veri yüklenemedi.</div>
+    </div>`;
+  }
+
+  return stocks.map((h, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    return `
+      <div class="stock-card ${rankClass}">
+        <div class="stock-card-top">
+          <div class="stock-left">
+            <div class="rank-badge">#${i+1}</div>
+            <div class="stock-info">
+              <div class="stock-ticker">${h.ticker}</div>
+              <div class="stock-sector">${h.sektor || '—'}</div>
+            </div>
+          </div>
+          ${scoreRing(h.skor || 0)}
+        </div>
+        <div class="stock-metrics">
+          <div class="metric">
+            <div class="metric-label">PD/DD</div>
+            <div class="metric-value ${metricClass('pddd', h.pddd)}">${h.pddd || '—'}</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">F/K</div>
+            <div class="metric-value ${metricClass('fk', h.fk)}">${h.fk || '—'}</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">ÖZS %</div>
+            <div class="metric-value ${metricClass('ozs', h.ozs)}">${h.ozs || '—'}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── LOAD PORTFOLIO ─────────────────────
+async function loadPortfolio() {
+  if (!config.owner || !config.repo) return;
+
+  try {
+    const url = `https://raw.githubusercontent.com/${config.owner}/${config.repo}/main/onceki_portfoy.json`;
+    const r = await fetch(url + '?t=' + Date.now());
+    if (!r.ok) throw new Error('404');
+    const data = await r.json();
+
+    document.getElementById('portfolioDate').textContent = data.tarih || '—';
+    document.getElementById('stockCount').textContent = (data.detaylar || data.portfoy || []).length;
+    document.getElementById('lastUpdate').textContent = data.tarih || '—';
+
+    const stocks = data.detaylar || [];
+    document.getElementById('stockList').innerHTML = renderStocks(stocks);
+  } catch(e) {
+    document.getElementById('stockList').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚙️</div>
+        <div class="empty-title">Bağlantı Kurulamadı</div>
+        <div class="empty-text">Ayarlar sekmesinden GitHub repo bilgilerini girin.</div>
+      </div>`;
+  }
+}
+
+// ── MANUAL SCAN ────────────────────────
+async function startScan() {
+  if (!config.owner || !config.repo || !config.token) {
+    showConfigModal();
+    return;
+  }
+
+  const btn = document.getElementById('scanBtn');
+  const status = document.getElementById('scanStatus');
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.innerHTML = '<div class="spinner"></div><span>Tarama Başlatılıyor...</span>';
+
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${config.owner}/${config.repo}/actions/workflows/daily_analysis.yml/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${config.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ref: 'main' })
+      }
+    );
+
+    if (r.status === 204) {
+      status.innerHTML = `
+        <div class="settings-section" style="margin-top:16px">
+          <div class="settings-row" style="border:none">
+            <div>
+              <div class="settings-label" style="color:var(--accent)">✅ Tarama Başlatıldı!</div>
+              <div class="settings-sublabel">~3-5 dakika içinde Telegram'a sonuç gelecek.</div>
+            </div>
+          </div>
+        </div>`;
+      showToast('🚀 Tarama başlatıldı!');
+    } else {
+      throw new Error('HTTP ' + r.status);
+    }
+  } catch(e) {
+    status.innerHTML = `
+      <div class="settings-section" style="margin-top:16px">
+        <div class="settings-row" style="border:none">
+          <div>
+            <div class="settings-label" style="color:var(--red)">❌ Hata</div>
+            <div class="settings-sublabel">Token geçersiz veya repo bulunamadı.</div>
+          </div>
+        </div>
+      </div>`;
+    showToast('❌ Hata oluştu');
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.innerHTML = '<span>🚀</span><span>Taramayı Başlat</span>';
+  }, 5000);
+}
+
+// ── HISTORY ────────────────────────────
+const HISTORY_DATA = [
+  { tarih: "02/03/2026", hisseler: [
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 1.81, pddd: 0.75 },
+    { ticker: "A1CAP", sektor: "Aracı Kurumlar", fk: 2.89, pddd: 1.20 },
+    { ticker: "ESCOM", sektor: "Bilişim ve Yazılım", fk: 3.06, pddd: 2.11 },
+    { ticker: "KRSTL", sektor: "İçecek", fk: 6.50, pddd: 0.61 },
+    { ticker: "LMKDC", sektor: "Çimento, Beton", fk: 7.59, pddd: 2.03 },
+  ]},
+  { tarih: "01/02/2026", hisseler: [
+    { ticker: "INVEO", sektor: "Holding", fk: 2.65, pddd: 0.70 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.60, pddd: 0.85 },
+    { ticker: "SANEL", sektor: "Bayındırlık ve İmar", fk: 6.11, pddd: 5.45 },
+    { ticker: "MACKO", sektor: "Spor ve Eğlence", fk: 6.60, pddd: 4.01 },
+    { ticker: "KRSTL", sektor: "İçecek", fk: 7.53, pddd: 1.27 },
+  ]},
+  { tarih: "01/01/2026", hisseler: [
+    { ticker: "INVEO", sektor: "Holding", fk: 2.52, pddd: 0.66 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.41, pddd: 0.79 },
+    { ticker: "KRSTL", sektor: "İçecek", fk: 6.15, pddd: 1.04 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 7.10, pddd: 5.53 },
+    { ticker: "ATATP", sektor: "Bilişim ve Yazılım", fk: 7.10, pddd: 3.19 },
+  ]},
+  { tarih: "01/12/2025", hisseler: [
+    { ticker: "INVEO", sektor: "Holding", fk: 2.84, pddd: 0.75 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.52, pddd: 0.82 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 5.35, pddd: 4.17 },
+    { ticker: "SANEL", sektor: "Bayındırlık ve İmar", fk: 6.54, pddd: 5.84 },
+    { ticker: "KRSTL", sektor: "İçecek", fk: 6.87, pddd: 1.16 },
+  ]},
+  { tarih: "03/11/2025", hisseler: [
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.47, pddd: 0.81 },
+    { ticker: "INVEO", sektor: "Holding", fk: 3.30, pddd: 0.87 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 6.87, pddd: 5.26 },
+    { ticker: "ORGE",  sektor: "Bayındırlık ve İmar", fk: 8.16, pddd: 1.76 },
+    { ticker: "LMKDC", sektor: "Çimento, Beton", fk: 7.01, pddd: 2.15 },
+  ]},
+  { tarih: "01/10/2025", hisseler: [
+    { ticker: "INVEO", sektor: "Holding", fk: 1.83, pddd: 0.67 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 1.82, pddd: 0.83 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 6.22, pddd: 4.76 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 7.96, pddd: 1.22 },
+    { ticker: "ORGE",  sektor: "Bayındırlık ve İmar", fk: 8.24, pddd: 1.77 },
+  ]},
+  { tarih: "01/09/2025", hisseler: [
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.15, pddd: 0.98 },
+    { ticker: "INVEO", sektor: "Holding", fk: 2.35, pddd: 0.86 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 5.55, pddd: 4.25 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 7.98, pddd: 1.22 },
+    { ticker: "ATATP", sektor: "Bilişim ve Yazılım", fk: 9.35, pddd: 3.98 },
+  ]},
+  { tarih: "01/08/2025", hisseler: [
+    { ticker: "KZBGY", sektor: "Gayrimenkul Y.O.", fk: 2.45, pddd: 0.92 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 3.68, pddd: 0.70 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 7.49, pddd: 1.20 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: null, pddd: null },
+    { ticker: "A1CAP", sektor: "Aracı Kurumlar", fk: 7.66, pddd: 1.28 },
+  ]},
+  { tarih: "01/07/2025", hisseler: [
+    { ticker: "KZBGY", sektor: "Gayrimenkul Y.O.", fk: 2.05, pddd: 0.77 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 3.20, pddd: 0.61 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 6.56, pddd: 1.05 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: null, pddd: null },
+    { ticker: "BANVT", sektor: "Gıda", fk: 6.42, pddd: 1.70 },
+  ]},
+  { tarih: "02/06/2025", hisseler: [
+    { ticker: "KZBGY", sektor: "Gayrimenkul Y.O.", fk: 1.74, pddd: 0.65 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.73, pddd: 0.52 },
+    { ticker: "A1CAP", sektor: "Aracı Kurumlar", fk: 5.12, pddd: 0.85 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: null, pddd: 3.94 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 6.54, pddd: 1.04 },
+  ]},
+  { tarih: "02/05/2025", hisseler: [
+    { ticker: "KZBGY", sektor: "Gayrimenkul Y.O.", fk: 1.74, pddd: 0.76 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.38, pddd: 0.45 },
+    { ticker: "BORSK", sektor: "Gıda", fk: 12.40, pddd: 0.86 },
+    { ticker: "ARTMS", sektor: "Tekstil Ürünleri", fk: 6.55, pddd: 1.04 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 6.99, pddd: 5.04 },
+  ]},
+  { tarih: "02/04/2025", hisseler: [
+    { ticker: "KZBGY", sektor: "Gayrimenkul Y.O.", fk: 1.23, pddd: 0.54 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.60, pddd: 0.59 },
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 3.17, pddd: 0.75 },
+    { ticker: "BULGS", sektor: "Girişim Ser. Y.O.", fk: 4.24, pddd: 1.58 },
+    { ticker: "KTLEV", sektor: "Finansman Şirketleri", fk: 5.93, pddd: 4.27 },
+  ]},
+  { tarih: "03/03/2025", hisseler: [
+    { ticker: "ARASE", sektor: "Enerji", fk: 3.64, pddd: 0.88 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.71, pddd: 0.62 },
+    { ticker: "GLRYH", sektor: "Holding", fk: 31.59, pddd: 0.49 },
+    { ticker: "GOLTS", sektor: "Çimento, Beton", fk: 4.32, pddd: 0.92 },
+    { ticker: "BUCIM", sektor: "Çimento, Beton", fk: 9.29, pddd: 0.91 },
+  ]},
+  { tarih: "03/02/2025", hisseler: [
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.92, pddd: 0.69 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.43, pddd: 0.80 },
+    { ticker: "ARASE", sektor: "Enerji", fk: 3.77, pddd: 0.91 },
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 23.12, pddd: 0.99 },
+    { ticker: "GOLTS", sektor: "Çimento, Beton", fk: 4.58, pddd: 0.97 },
+  ]},
+  { tarih: "02/01/2025", hisseler: [
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.67, pddd: 0.63 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.35, pddd: 0.78 },
+    { ticker: "ARASE", sektor: "Enerji", fk: 4.29, pddd: 1.03 },
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 27.95, pddd: 1.20 },
+    { ticker: "GLRYH", sektor: "Holding", fk: 32.70, pddd: 0.50 },
+  ]},
+  { tarih: "02/12/2024", hisseler: [
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 1.87, pddd: 0.62 },
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.70, pddd: 0.64 },
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 23.72, pddd: 1.02 },
+    { ticker: "ARASE", sektor: "Enerji", fk: 4.26, pddd: 1.03 },
+    { ticker: "GLRYH", sektor: "Holding", fk: 28.07, pddd: 0.43 },
+  ]},
+  { tarih: "01/11/2024", hisseler: [
+    { ticker: "ARASE", sektor: "Enerji", fk: 3.01, pddd: 1.14 },
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 23.00, pddd: 0.99 },
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.21, pddd: 0.52 },
+    { ticker: "DOAS",  sektor: "Otomotiv", fk: 2.91, pddd: 0.94 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 1.61, pddd: 0.53 },
+  ]},
+  { tarih: "01/10/2024", hisseler: [
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 2.71, pddd: 0.90 },
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.49, pddd: 0.61 },
+    { ticker: "ARASE", sektor: "Enerji", fk: 2.85, pddd: 1.08 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 3.02, pddd: 0.58 },
+    { ticker: "SNICA", sektor: "Dayanıklı Tüketim", fk: 8.28, pddd: 1.07 },
+  ]},
+  { tarih: "30/08/2024", hisseler: [
+    { ticker: "PRDGS", sektor: "Girişim Ser. Y.O.", fk: 1.64, pddd: 0.92 },
+    { ticker: "ATLAS", sektor: "Menkul Kıymet Y.O.", fk: 1.78, pddd: 0.95 },
+    { ticker: "AVPGY", sektor: "Gayrimenkul Y.O.", fk: 2.03, pddd: 0.54 },
+    { ticker: "ISGSY", sektor: "Girişim Ser. Y.O.", fk: 2.83, pddd: 0.64 },
+    { ticker: "ARASE", sektor: "Enerji", fk: 2.98, pddd: 1.19 },
+  ]},
+];
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = HISTORY_DATA.map((month, idx) => `
+    <div class="history-month" id="month-${idx}">
+      <div class="history-month-header" onclick="toggleMonth(${idx})">
+        <div>
+          <div class="history-date">${month.tarih}</div>
+          <div class="history-count">${month.hisseler.length} hisse</div>
+        </div>
+        <div class="history-chevron">▼</div>
+      </div>
+      <div class="history-stocks">
+        ${month.hisseler.map(h => `
+          <div class="history-stock-row">
+            <div>
+              <div class="history-ticker">${h.ticker}</div>
+              <div class="history-sector">${h.sektor}</div>
+            </div>
+            <div class="history-metrics">
+              <span>FK:${h.fk || '—'}</span>
+              <span>PDDD:${h.pddd || '—'}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // İlk ayı aç
+  toggleMonth(0);
+}
+
+function toggleMonth(idx) {
+  document.getElementById('month-' + idx).classList.toggle('open');
+}
+
+// ── INIT ───────────────────────────────
+updateDisplayConfig();
+renderHistory();
+
+if (config.owner && config.repo) {
+  loadPortfolio();
+} else {
+  setTimeout(showConfigModal, 800);
+}
+</script>
+</body>
+</html>
