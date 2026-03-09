@@ -310,7 +310,7 @@ def main():
 
     passing = sorted([h for h in hisseler if h["pddd"] and h["pddd"] > 0],
                  key=lambda x: x["skor"], reverse=True)
-top = passing[:TOP_N]
+    top = passing[:TOP_N]
 
     print(f"📊 Filtreden geçen: {len(passing)}")
     print(f"🏆 Top {TOP_N}: {[h['ticker'] for h in top]}")
